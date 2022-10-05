@@ -241,6 +241,7 @@ function initPinSteps() {
     endTrigger: '#stage4',
     end: 'center center',
     pin: true,
+    pinReparent: true,
   });
 
   const navLinks = gsap.utils.toArray('.fixed-nav li');
@@ -279,8 +280,20 @@ function initPinSteps() {
     trigger: '#stage1',
     start: 'top center',
     end: 'top center',
-    markers: true,
     onLeaveBack: () => updateBodyColor('#acb7ae'),
+  });
+}
+
+function initScrollTo() {
+  gsap.utils.toArray('.fixed-nav a').forEach((link) => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      gsap.to(window, {
+        duration: 1.5,
+        scrollTo: link.getAttribute('href'),
+        ease: 'power2.out',
+      });
+    });
   });
 }
 
@@ -295,8 +308,41 @@ function init() {
   initPortfolioHover();
   initImageParallax();
   initPinSteps();
+  initScrollTo();
 }
 
+window.addEventListener('load', function () {
+  init();
+});
+
+/* 
+======
+SMOOTH SCROOLING
+======
+*/
+let container = document.querySelector('#scroll-container');
+let height;
+
+function setHeight() {
+  height = container.clientHeight;
+  document.body.style.height = `${height}px`;
+}
+
+// this code will run BEFORE the refresh == on the first page load
+ScrollTrigger.addEventListener('refreshInit', setHeight);
+
+// gsap smooth scrolling
+gsap.to(container, {
+  y: () => -(height - document.documentElement.clientHeight),
+  ease: 'none',
+  scrollTrigger: {
+    trigger: document.body,
+    start: 'top top',
+    end: 'bottom bottom',
+    scrub: 1,
+    invalidateOnRefresh: true,
+  },
+});
 /* 
 ======
 HELPER FUNCTIONS
@@ -319,9 +365,6 @@ function resetProps(elements) {
 MEDIA QUERIES
 ======
 */
-window.addEventListener('load', function () {
-  init();
-});
 
 // define a breakpoint
 const mq = window.matchMedia('(min-width: 768px)');

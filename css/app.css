@@ -26,7 +26,9 @@
 body {
   font: 16px/1.7 'Source Sans Pro', Helvetica, Helvetica Neue, Arial, sans-serif;
   color: var(--text-dark-color);
+  overflow-y: scroll;
 }
+
 /* hide page content by default */
 .is-loading #main,
 .is-loading .logo,
@@ -43,6 +45,7 @@ body {
   cursor: progress;
 }
 
+/* =GSAP Smooth Scrolling demo */
 #viewport {
   overflow: hidden;
   position: fixed;
@@ -50,6 +53,13 @@ body {
   width: 100%;
   top: 0;
   left: 0;
+}
+#scroll-container {
+  position: absolute;
+  overflow: hidden;
+  width: 100%;
+  will-change: transform;
+  backface-visibility: hidden;
 }
 
 /* =Top Nav */
