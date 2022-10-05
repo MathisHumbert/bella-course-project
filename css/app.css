@@ -12,6 +12,7 @@
 
   --bcg-loaderblue: #758a94;
   --bcg-loaderbluedark: #566c76;
+  --bcg-fill-color: var(--bcg-green);
 
   --loader-width: 27.36vw;
   --loader-height: 50vh;
@@ -25,6 +26,30 @@
 body {
   font: 16px/1.7 'Source Sans Pro', Helvetica, Helvetica Neue, Arial, sans-serif;
   color: var(--text-dark-color);
+}
+/* hide page content by default */
+.is-loading #main,
+.is-loading .logo,
+.is-loading .burger,
+.is-loading .main-nav,
+.is-loading .fill-background {
+  display: none;
+}
+.is-loading {
+  background-color: var(--bcg-loaderblue);
+}
+.is-transitioning {
+  pointer-events: none;
+  cursor: progress;
+}
+
+#viewport {
+  overflow: hidden;
+  position: fixed;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  left: 0;
 }
 
 /* =Top Nav */
@@ -117,7 +142,7 @@ body {
   position: relative;
   overflow: hidden;
 }
-.main-nav a:after {
+.main-nav a::after {
   display: block;
   content: '';
   height: 2px;
@@ -302,7 +327,7 @@ header h1 span {
 /* =Reveal Gallery */
 .reveal-gallery {
   width: 100%;
-  height: 100vh;
+  flex-direction: column;
   overflow: hidden;
   display: flex;
   justify-content: center;
@@ -318,6 +343,7 @@ header h1 span {
   justify-content: center;
   position: relative;
   overflow: hidden;
+  min-height: 50vh;
 }
 .rg__text--heading h3 {
   font-size: 3.6vw;
@@ -334,7 +360,6 @@ header h1 span {
   font-weight: normal;
 }
 .rg__text {
-  max-width: 17vw;
   z-index: 1;
   position: relative;
 }
@@ -343,9 +368,9 @@ header h1 span {
   font-weight: 300;
   letter-spacing: 0.03vw;
 }
-/* .rg__column.left {background-color:var(--bcg-lightgreen)}
-.rg__column.center {background-color: var(--bcg-lightbrown)}
-.rg__column.right {background-color:var(--bcg-lightblue)} */
+.rg__text--copy p {
+  margin: 0;
+}
 .rg__column::before {
   display: block;
   position: absolute;
@@ -362,25 +387,17 @@ header h1 span {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  /* transform: translateY(-100%);
-  transition: transform 0.45s var(--easing); */
 }
 .rg__image--mask {
   height: 100%;
   overflow: hidden;
-  /* transition: transform 0.45s var(--easing);
-  transform: translateY(100%); */
 }
 .rg__image img {
   opacity: 0.6;
 }
-.rg__column.is-active .rg__image,
-.rg__column.is-active .rg__image--mask {
-  /* transform: translateY(0); */
-}
 .rg__text--copy {
-  position: absolute;
-  overflow: hidden;
+  font-weight: 300;
+  letter-spacing: 0.03vw;
 }
 .rg__text--mask {
   overflow: hidden;
@@ -406,7 +423,8 @@ header h1 span {
   align-items: center;
   width: 100%;
   height: 100%;
-  background-color: var(--bcg-loaderblue);
+  background: var(--bcg-loaderblue) url('../img/img_logo.svg') no-repeat center;
+  background-size: 155px 155px;
   overflow: hidden;
 }
 .loader .inner,
@@ -416,6 +434,15 @@ header h1 span {
 }
 .loader .inner {
   background-color: var(--bcg-loaderbluedark);
+  position: relative;
+}
+.loader .progress {
+  background-color: var(--bcg-lightblue);
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: var(--loader-width);
+  height: var(--loader-height);
 }
 .loader__content {
   z-index: 4;
@@ -543,6 +570,9 @@ section {
   width: 100%;
   height: 100%;
   position: fixed;
+  will-change: background-color;
+  background-color: var(--bcg-fill-color);
+  transition: background-color 0.3s linear;
 }
 
 /* =Blog */
@@ -693,6 +723,21 @@ section {
 }
 
 @media only screen and (min-width: 768px) {
+  /* =Reveal Gallery */
+  .reveal-gallery {
+    flex-direction: row;
+    height: 100vh;
+  }
+  .rg__column {
+    min-height: auto;
+  }
+  .rg__text--copy {
+    position: absolute;
+    overflow: hidden;
+  }
+  .rg__text {
+    max-width: 17vw;
+  }
 }
 
 @media only screen and (min-width: 1140px) {
