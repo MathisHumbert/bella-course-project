@@ -1,5 +1,5 @@
 gsap.registerPlugin(ScrollTrigger);
-
+let bodyScrollBar;
 /* 
 ======
 NAVIGATION
@@ -241,7 +241,7 @@ function initPinSteps() {
     endTrigger: '#stage4',
     end: 'center center',
     pin: true,
-    pinReparent: true,
+    pinReparent: true, // to make sure it works with smooth scroll
   });
 
   const navLinks = gsap.utils.toArray('.fixed-nav li');
@@ -286,15 +286,46 @@ function initPinSteps() {
 
 function initScrollTo() {
   gsap.utils.toArray('.fixed-nav a').forEach((link) => {
+    const target = link.getAttribute('href');
     link.addEventListener('click', (e) => {
       e.preventDefault();
-      gsap.to(window, {
-        duration: 1.5,
-        scrollTo: link.getAttribute('href'),
-        ease: 'power2.out',
+      // gsap.to(window, {
+      //   duration: 1.5,
+      //   scrollTo: target,
+      //   ease: 'power2.out',
+      // }); without smool scrollbar
+      bodyScrollBar.scrollIntoView(document.querySelector(target), {
+        damping: 0.07,
+        offsetTop: 100,
       });
     });
   });
+}
+
+/* 
+======
+SMOOTH SCROOLING USING SMOOTH SCROLLBAR
+======
+*/
+function initSmoothScrollbar() {
+  bodyScrollBar = Scrollbar.init(document.querySelector('#viewport'), {
+    damping: 0.07,
+  });
+
+  // remove horizontal scrollbar
+  bodyScrollBar.track.xAxis.element.remove();
+
+  // Tell ScrollTrigger to use these proxy getter/setter methods for the "body" element:
+  ScrollTrigger.scrollerProxy(document.body, {
+    scrollTop(value) {
+      if (arguments.length) {
+        bodyScrollBar.scrollTop = value; // setter
+      }
+      return bodyScrollBar.scrollTop; // getter
+    },
+  });
+
+  bodyScrollBar.addListener(ScrollTrigger.update);
 }
 
 /* 
@@ -303,6 +334,7 @@ INIT FUNCTION
 ======
 */
 function init() {
+  initSmoothScrollbar();
   initNavigation();
   initHeaderTilt();
   initPortfolioHover();
@@ -317,32 +349,33 @@ window.addEventListener('load', function () {
 
 /* 
 ======
-SMOOTH SCROOLING
+SMOOTH SCROOLING USING GSAP
 ======
 */
-let container = document.querySelector('#scroll-container');
-let height;
+// let container = document.querySelector('#scroll-container');
+// let height;
 
-function setHeight() {
-  height = container.clientHeight;
-  document.body.style.height = `${height}px`;
-}
+// function setHeight() {
+//   height = container.clientHeight;
+//   document.body.style.height = `${height}px`;
+// }
 
-// this code will run BEFORE the refresh == on the first page load
-ScrollTrigger.addEventListener('refreshInit', setHeight);
+// // this code will run BEFORE the refresh == on the first page load
+// ScrollTrigger.addEventListener('refreshInit', setHeight);
 
-// gsap smooth scrolling
-gsap.to(container, {
-  y: () => -(height - document.documentElement.clientHeight),
-  ease: 'none',
-  scrollTrigger: {
-    trigger: document.body,
-    start: 'top top',
-    end: 'bottom bottom',
-    scrub: 1,
-    invalidateOnRefresh: true,
-  },
-});
+// // gsap smooth scrolling
+// gsap.to(container, {
+//   y: () => -(height - document.documentElement.clientHeight),
+//   ease: 'none',
+//   scrollTrigger: {
+//     trigger: document.body,
+//     start: 'top top',
+//     end: 'bottom bottom',
+//     scrub: 1,
+//     invalidateOnRefresh: true,
+//   },
+// });
+
 /* 
 ======
 HELPER FUNCTIONS
