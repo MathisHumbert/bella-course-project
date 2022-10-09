@@ -26,7 +26,7 @@
 body {
   font: 16px/1.7 'Source Sans Pro', Helvetica, Helvetica Neue, Arial, sans-serif;
   color: var(--text-dark-color);
-  /* overflow-y: scroll;  used for gsap smooth scroll*/
+  overflow-y: scroll;
 }
 
 /* hide page content by default */
@@ -424,8 +424,8 @@ header h1 span {
   top: 0;
   left: 0;
   width: 100%;
-  visibility: hidden;
   overflow: hidden;
+  visibility: hidden;
 }
 .loader__mask {
   position: absolute;
@@ -461,7 +461,7 @@ header h1 span {
   justify-content: center;
   align-items: center;
   background: transparent;
-  visibility: hidden; /* hide loader content by default */
+  /*visibility: hidden;  hide loader content by default */
 }
 .loader__title {
   font-size: 7vw;
@@ -485,6 +485,9 @@ header h1 span {
 }
 .loader__title--mask {
   overflow: hidden;
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 .loader__title--mask span {
   display: block;
