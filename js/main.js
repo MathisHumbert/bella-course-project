@@ -333,58 +333,59 @@ function initSmoothScrollbar() {
 LOADER
 ======
 */
-// const loader = document.querySelector('.loader');
-// const loaderInner = document.querySelector('.loader .inner');
-// const progressBar = document.querySelector('.loader .progress');
+const loader = document.querySelector('.loader');
+const loaderInner = document.querySelector('.loader .inner');
+const progressBar = document.querySelector('.loader .progress');
+const loaderMask = document.querySelector('.loader__mask');
 
-// // show loader on page
-// gsap.set(loader, { autoAlpha: 1 });
+// show loader on page
+gsap.set(loader, { autoAlpha: 1 });
 
-// // scale loader down
-// gsap.set(loaderInner, { scaleY: 0.005, transformOrigin: 'bottom' });
+// scale loader down
+gsap.set(loaderInner, { scaleY: 0.005, transformOrigin: 'bottom' });
 
-// // make a tween taht scales the loader
-// const progressTween = gsap.to(progressBar, {
-//   scaleX: 0,
-//   ease: 'none',
-//   transformOrigin: 'right',
-//   paused: true,
-// });
+// make a tween taht scales the loader
+const progressTween = gsap.to(progressBar, {
+  scaleX: 0,
+  ease: 'none',
+  transformOrigin: 'right',
+  paused: true,
+});
 
-// // setup variables
-// let loadedImageCount = 0;
-// let imageCount;
-// const container = document.querySelector('#main');
+// setup variables
+let loadedImageCount = 0;
+let imageCount;
+const container = document.querySelector('#main');
 
-// // seup Images loaded
-// const imgLoaded = imagesLoaded(container);
-// imageCount = imgLoaded.images.length;
+// seup Images loaded
+const imgLoaded = imagesLoaded(container);
+imageCount = imgLoaded.images.length;
 
-// // set the nitial progress to 0
-// updateProgress(0);
+// set the nitial progress to 0
+updateProgress(0);
 
-// // tirggered after each item is loaded
-// imgLoaded.on('progress', () => {
-//   // increase the number of loaded images
-//   loadedImageCount++;
+// tirggered after each item is loaded
+imgLoaded.on('progress', () => {
+  // increase the number of loaded images
+  loadedImageCount++;
 
-//   // update progress
-//   updateProgress(loadedImageCount);
-// });
+  // update progress
+  updateProgress(loadedImageCount);
+});
 
-// //  do whatever you want when all images are loaded
-// imgLoaded.on('done', () => {
-//   // init loader animation onComplete
-//   gsap.set(progressTween, { autoAlpha: 0, onComplete: initLoader });
-// });
+//  do whatever you want when all images are loaded
+imgLoaded.on('done', () => {
+  // init loader animation onComplete
+  gsap.set(progressTween, { autoAlpha: 0, onComplete: initPageTransitions });
+});
 
-// function updateProgress(value) {
-//   gsap.to(progressTween, {
-//     progress: value / imageCount,
-//     duration: 0.3,
-//     ease: 'power1.out',
-//   });
-// }
+function updateProgress(value) {
+  gsap.to(progressTween, {
+    progress: value / imageCount,
+    duration: 0.3,
+    ease: 'power1.out',
+  });
+}
 
 function initLoader() {
   const tlLoader = gsap.timeline();
@@ -428,6 +429,79 @@ function initLoader() {
     .from('#main', { y: 150 }, 0);
 
   tlLoader.add(tlLoaderIn).add(tlLoaderOut);
+}
+
+/* 
+======
+PAGE TRANSITION
+======
+*/
+
+function initPageTransitions(params) {
+  // do something before the transition starts
+  barba.hooks.before(() => {
+    document.querySelector('html').classList.add('is-transitioning');
+  });
+
+  // do something after the transition finishes
+  barba.hooks.after(() => {
+    document.querySelector('html').classList.remove('is-transitioning');
+  });
+
+  // scroll to the top of the page
+  barba.hooks.enter(() => {
+    window.scrollTo(0, 0);
+  });
+
+  barba.init({
+    transitions: [
+      {
+        once() {
+          // go something once on the initial page load
+          initLoader();
+        },
+        async leave({ current }) {
+          // animate loading screen in
+          await pageTransitionIn(current);
+        },
+        enter({ next }) {
+          // animate loading screen away
+          pageTransitionOut(next);
+        },
+      },
+    ],
+  });
+}
+
+function pageTransitionIn({ container }) {
+  console.log('pageTransitionIn');
+  const tl = gsap.timeline({
+    defaults: {
+      duration: 0.7,
+      ease: 'power1.inOut',
+    },
+  });
+  tl.set(loaderInner, { autoAlpha: 0 })
+    .fromTo(loader, { yPercent: -100 }, { yPercent: 0 })
+    .fromTo(loaderMask, { yPercent: 80 }, { yPercent: 0 }, 0)
+    .to(container, { y: 150 }, 0);
+
+  return tl;
+}
+
+function pageTransitionOut({ container }) {
+  console.log('pageTransitionOut');
+  const tl = gsap.timeline({
+    defaults: {
+      duration: 0.7,
+      ease: 'power1.inOut',
+    },
+  });
+  tl.to(loader, { yPercent: 100 })
+    .to(loaderMask, { yPercent: -80 }, 0)
+    .from(container, { y: -150 }, 0);
+
+  return tl;
 }
 
 /* 
@@ -500,7 +574,6 @@ function resetProps(elements) {
 MEDIA QUERIES
 ======
 */
-
 // define a breakpoint
 const mq = window.matchMedia('(min-width: 768px)');
 
